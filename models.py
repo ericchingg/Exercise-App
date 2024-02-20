@@ -66,8 +66,11 @@ class ExerciseWorkout(db.Model):
   __tablename__ = 'exercise_workout'
 
   id = db.Column(db.Integer, primary_key=True, autoincrement=True)
-  workout_id = db.Column(db.Integer, db.ForeignKey('workouts.id', ondelete='CASCADE'), primary_key=True)
-  exercise_id = db.Column(db.Integer, db.ForeignKey('exercises.id', ondelete='CASCADE'), primary_key=True)
+  workout_id = db.Column(db.Integer, db.ForeignKey('workouts.id'), primary_key=True)
+  exercise_id = db.Column(db.Integer, db.ForeignKey('exercises.id'), primary_key=True)
+
+  workout = db.relationship('Workout', backref=db.backref('exercise_workouts', cascade='all, delete-orphan'))
+  exercise = db.relationship('Exercise', backref=db.backref('workout_exercises', cascade='all, delete-orphan'))
 
 
 

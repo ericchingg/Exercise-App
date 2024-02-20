@@ -170,7 +170,12 @@ def search():
 @app.route('/exercises')
 def show_exercises():
 
-    exercises = Exercise.query.all()
+    filter_type = request.args.get('filter', 'all')
+
+    if filter_type == 'all':
+        exercises = Exercise.query.all()
+    else:
+        exercises = Exercise.query.filter_by(muscle=filter_type).all()
 
     return render_template('exercise/all.html', exercises=exercises)
 
@@ -186,9 +191,11 @@ def exercise_details(exercise_id):
 @app.route('/workouts')
 def show_all_workouts():
 
-    workouts = Workout.query.all()
+    user_id = g.user.id
 
-    return render_template('workout/workouts.html', workouts=workouts)
+    workouts = Workout.query.filter_by(user_id=user_id).all()
+
+    return render_template('workout/workouts.html', workouts=workouts, user_id=user_id)
 
 @app.route('/workouts/<int:workout_id>', methods=['GET'])
 def show_workout(workout_id):
@@ -254,7 +261,7 @@ def add_ex_to_workout(workout_id):
                              form=form)
 
 @app.route('/workouts/<int:workout_id>/delete', methods=["POST"])
-def delete_workiut(workout_id):
+def delete_workout(workout_id):
 
     if not g.user:
         flash("Access unauthorized.", "danger")
@@ -271,7 +278,27 @@ def delete_workiut(workout_id):
 
     return redirect('/workouts')
 
+@app.route('/workouts/remove/<int:workout_id>/<int:exercise_id>/', methods=["GET","POST"])
+def remove_ex_from_workout(workout_id,exercise_id):
 
+    if not g.user:
+        flash("Access unauthorized.", "danger")
+        return redirect("/")
+    
+    
+    if request.method == 'POST':
+        exercise_workout = ExerciseWorkout.query.filter_by(workout_id=workout_id,exercise_id=exercise_id).first_or_404()
+
+        db.session.delete(exercise_workout)
+
+        db.session.commit()
+
+        return redirect('/workouts')
+    
+    return render_template('/workout/workouts.html')
+    
+
+    
 
 @app.after_request
 def add_header(req):

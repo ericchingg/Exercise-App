@@ -27,9 +27,11 @@
     <a class="btn btn-light" href="/workouts/{{ workout.id }}/add">
         Add Exercise To Workout
     </a>
-    <a class="btn btn-danger" href="/workouts/{{ workout.id }}/delete">
-        Delete Workout
-    </a>
+    <form action="/workouts/{{ workout.id }}/delete" method="POST">
+        <button type="submit" class="btn btn-danger">
+            Delete Workout
+        </button>
+    </form>
 </div>
 
 {% endblock %}

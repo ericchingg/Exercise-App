@@ -260,7 +260,7 @@ def add_ex_to_workout(workout_id):
                              workout=workout,
                              form=form)
 
-@app.route('/workouts/<int:workout_id>/delete', methods=["POST"])
+@app.route('/workouts/<int:workout_id>/delete', methods=["GET","POST"])
 def delete_workout(workout_id):
 
     if not g.user:
@@ -269,14 +269,18 @@ def delete_workout(workout_id):
 
     workout = Workout.query.get_or_404(workout_id)
 
-    if workout.user_id != g.user.id:
-        flash("Access unauthorized.", "danger")
-        return redirect("/")
-    
-    db.session.delete(workout)
-    db.session.commit()
+    if request.method == 'POST':
 
-    return redirect('/workouts')
+        if workout.user_id != g.user.id:
+            flash("Access unauthorized.", "danger")
+            return redirect("/")
+    
+        db.session.delete(workout)
+        db.session.commit()
+
+        return redirect('/workouts')
+    
+    return render_template('/workout/workout.html', workout=workout)
 
 @app.route('/workouts/remove/<int:workout_id>/<int:exercise_id>/', methods=["GET","POST"])
 def remove_ex_from_workout(workout_id,exercise_id):
